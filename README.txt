@@ -1,0 +1,1 @@
+This repository is for the opensource content used on my website/blog http://m-audi.com. You are free to use any of the software or hardware designs on this website, though I do ask, if you do something cool with it let me know! shoot me an email maudi@sidevices.com, comment on the site or hit me up on twitter @michael_audi.

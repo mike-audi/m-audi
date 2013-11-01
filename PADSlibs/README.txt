@@ -1,0 +1,1 @@
+PADS libraries for components I've made over time, it may save you a ton of mindless intern work if it has parts you can use. 

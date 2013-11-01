@@ -1,3 +1,5 @@
+/*Updated by Michael Audi*/
+
 /* Copyright (c) 2009-2010 Atmel Corporation
    All rights reserved.
 

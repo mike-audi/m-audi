@@ -1,0 +1,1 @@
+Miscelaneous documentation files I have found to be varying degrees of useful. 

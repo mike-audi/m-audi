@@ -152,6 +152,7 @@
 #define wdt_enable(value) \
 __asm__ __volatile__ ( \
     "in __tmp_reg__, %0"  "\n\t" \
+	"out %0, __zero_reg__" "\n\t" \
     "out %1, %3"          "\n\t" \
     "sts %2, %4"          "\n\t" \
     "wdr"                 "\n\t" \
@@ -165,6 +166,21 @@ __asm__ __volatile__ ( \
     : "r0" \
 )
 
+#define wdt_disable() \ 
+__asm__ __volatile__ ( \ 
+    "in __tmp_reg__, %0"  "\n\t" \ 
+    "out %0, __zero_reg__" "\n\t" \ 
+    "out %1, %3"          "\n\t" \ 
+    "sts %2, %4"          "\n\t" \ 
+    "out %0, __tmp_reg__" "\n\t" \ 
+    : \ 
+    : "M" (_SFR_MEM_ADDR(RAMPD)), \ 
+      "M" (_SFR_MEM_ADDR(CCP)), \ 
+      "M" (_SFR_MEM_ADDR(WDT_CTRL)), \ 
+      "r" ((uint8_t)0xD8), \ 
+      "r" ((uint8_t)WDT_CEN_bm) \ 
+    : "r0" \ 
+)
 
 #elif defined(__AVR_AT90CAN32__) \
 || defined(__AVR_AT90CAN64__) \

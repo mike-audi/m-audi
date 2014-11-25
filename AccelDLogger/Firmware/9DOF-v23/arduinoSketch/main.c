@@ -89,9 +89,9 @@ void accelerometer_init(void)
 
 void print_adxl345(void)
 {	
-	printf("%6d,", x_accel());
-	printf("%6d,", y_accel());
-	printf("%6d\n\r", z_accel());
+	printf("%6d,", x_accel()<<2);
+	printf("%6d,", y_accel()<<2);
+	printf("%6d\n", z_accel()<<2);
 }
 
 uint8_t newData(void){

@@ -6,4 +6,4 @@ A very simple program to convert a csr specific binary (.img) to intel hex forma
 * Built in windows so probably requires rebuilding in linux if you want to do that
 
 ## How to run
-./csrToHex.exe [inputFile].img [outputfile].hex
+./Release/csrToHex.exe [inputFile].img [outputfile].hex

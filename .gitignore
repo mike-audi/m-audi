@@ -43,6 +43,7 @@ local.properties
 
 # Build results
 [Dd]ebug/
+[Rr]lease/
 *_i.c
 *_p.c
 *.ilk

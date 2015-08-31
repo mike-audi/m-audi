@@ -1,1 +1,1 @@
-This repository is for the opensource content used on my website/blog http://m-audi.com. You are free to use any of the software or hardware designs, feel free to hit me up if you have questions or just built something cool @michael_audi or maudi.wpi@gmail.com.
+Lots of random semi useful stuff in here.

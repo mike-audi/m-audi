@@ -32,7 +32,7 @@ int main(int argc, char * argv[])
 		addr = getAddress(inputLine);
 		data = getData(inputLine);
 		if (!addr.empty() && !data.empty()){
-			output = ":04" + addr + "00" + data;
+			output = ":02" + addr + "00" + data;
 			output += makeCheckSum(output);
 			outfile << output << '\r';
 		}

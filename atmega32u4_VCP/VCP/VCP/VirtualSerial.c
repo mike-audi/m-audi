@@ -71,29 +71,53 @@ USB_ClassInfo_CDC_Device_t VirtualSerial_CDC_Interface =
  */
 static FILE USBSerialStream;
 
+static char charIn;
+static char bufin[256];
+static uint8_t bcount = 0;
+void uart_init(void);
+void uart_write(char x);
+uint8_t uart_char_is_waiting(void);
+char uart_read(void);
+int uart_putchar(char x, FILE *stream);
+int uart_getchar(FILE *stream);
 
 /** Main program entry point. This routine contains the overall program flow, including initial
  *  setup of all components and the main program loop.
  */
 int main(void)
 {
+	char s1 = 0;
+	char data =0;
 	SetupHardware();
 
 	/* Create a regular character stream for the interface so that it can be used with the stdio.h functions */
 	CDC_Device_CreateStream(&VirtualSerial_CDC_Interface, &USBSerialStream);
-
+	uart_init();
 	LEDs_SetAllLEDs(LEDMASK_USB_NOTREADY);
 	GlobalInterruptEnable();
 
 	for (;;)
 	{
-		//CheckJoystickMovement();
-		fputs("penis\n\r", &USBSerialStream);
-		/* Must throw away unused bytes from the host, or it will lock up while waiting for the device */
-		CDC_Device_ReceiveByte(&VirtualSerial_CDC_Interface);
-
 		CDC_Device_USBTask(&VirtualSerial_CDC_Interface);
 		USB_USBTask();
+		s1 = fread(&charIn,1,1,&USBSerialStream);
+		if(s1>0){
+			bufin[bcount] = charIn;
+			bcount++;
+			if(charIn == '\r'){
+				for(uint8_t i=0; i<bcount; i++){
+					fputc(bufin[0],&USBSerialStream);
+					uart_write(bufin[i]);
+				}
+				bcount = 0;
+			}else if(bcount>=256){
+				bcount=0;
+			}
+		}
+		while(uart_char_is_waiting()){
+			data=uart_read();
+			fputc(data,&USBSerialStream);
+		}
 	}
 }
 
@@ -118,43 +142,8 @@ void SetupHardware(void)
 
 	PMIC.CTRL = PMIC_LOLVLEN_bm | PMIC_MEDLVLEN_bm | PMIC_HILVLEN_bm;
 #endif
-
-	/* Hardware Initialization */
-	Joystick_Init();
 	LEDs_Init();
 	USB_Init();
-}
-
-/** Checks for changes in the position of the board joystick, sending strings to the host upon each change. */
-void CheckJoystickMovement(void)
-{
-	uint8_t     JoyStatus_LCL = Joystick_GetStatus();
-	char*       ReportString  = NULL;
-	static bool ActionSent    = false;
-
-	if (JoyStatus_LCL & JOY_UP)
-	  ReportString = "Joystick Up\r\n";
-	else if (JoyStatus_LCL & JOY_DOWN)
-	  ReportString = "Joystick Down\r\n";
-	else if (JoyStatus_LCL & JOY_LEFT)
-	  ReportString = "Joystick Left\r\n";
-	else if (JoyStatus_LCL & JOY_RIGHT)
-	  ReportString = "Joystick Right\r\n";
-	else if (JoyStatus_LCL & JOY_PRESS)
-	  ReportString = "Joystick Pressed\r\n";
-	else
-	  ActionSent = false;
-
-	if ((ReportString != NULL) && (ActionSent == false))
-	{
-		ActionSent = true;
-
-		/* Write the string to the virtual COM port via the created character stream */
-		fputs(ReportString, &USBSerialStream);
-
-		/* Alternatively, without the stream: */
-		// CDC_Device_SendString(&VirtualSerial_CDC_Interface, ReportString);
-	}
 }
 
 /** Event handler for the library USB Connection event. */
@@ -185,3 +174,41 @@ void EVENT_USB_Device_ControlRequest(void)
 	CDC_Device_ProcessControlRequest(&VirtualSerial_CDC_Interface);
 }
 
+void uart_init(void)
+{
+ // set baud rate
+  UBRR1H = 0;
+  UBRR1L = 103; 
+  UCSR1B = (1<<RXEN1)|(1<<TXEN1);
+  // set 8N1 frame format
+  UCSR1C = (1<<UCSZ11)|(1<<UCSZ10);
+  fdevopen(&uart_putchar, &uart_getchar);
+}
+
+char uart_read(void) {
+	char x = UDR1;
+	return x;
+}
+
+void uart_write(char x) {
+	// wait for empty receive buffer
+	while ((UCSR1A & (1<<UDRE1))==0);
+	// send
+	UDR1 = x;
+}
+
+uint8_t uart_char_is_waiting(void) {
+	// returns 1 if a character is waiting
+	// returns 0 if not
+	return (UCSR1A & (1<<RXC1));
+}
+
+int uart_putchar(char c, FILE *stream) {
+	uart_write(c);
+	return 0;
+}
+
+int uart_getchar(FILE *stream) {
+	int x = uart_read();
+	return x;
+}

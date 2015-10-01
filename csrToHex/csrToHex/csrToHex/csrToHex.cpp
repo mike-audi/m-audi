@@ -69,7 +69,10 @@ string getData(string s){
 		s.erase(0,6);
 		while(s.at(0) == ' ') 
 			s.erase(0, 1);
-		return s;
+		string msb = s.substr(0,2);
+		string lsb = s.substr(2, 2);
+		
+		return lsb+msb;
 	}
 }
 

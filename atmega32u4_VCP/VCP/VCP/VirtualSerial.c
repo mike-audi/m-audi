@@ -177,8 +177,8 @@ void EVENT_USB_Device_ControlRequest(void)
 void uart_init(void)
 {
  // set baud rate
-  UBRR1H = 0;
-  UBRR1L = 103; 
+  UBRR1H = 0x01;
+  UBRR1L = 0xa0; 
   UCSR1B = (1<<RXEN1)|(1<<TXEN1);
   // set 8N1 frame format
   UCSR1C = (1<<UCSZ11)|(1<<UCSZ10);
